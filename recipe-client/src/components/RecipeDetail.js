@@ -1,32 +1,53 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import data from "./data";
+import axios from "axios";
 import "./RecipeDetail.css";
 
 const RecipeDetail = () => {
   const { id } = useParams();
   console.log("Рецепт ID:", id); // Для отладки
   const [recipe, setRecipe] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    console.log("Received ID:", id);
-    // Находим рецепт по id
-    const foundRecipe = data.recipes.find((recipe) => recipe.id === id);
-    if (foundRecipe) {
-      setRecipe(foundRecipe);
-    } else {
-      console.error("Рецепт не найден");
-    }
+    const fetchRecipe = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/recipes/${id}/`
+        ); // Замените на ваш API
+        setRecipe(response.data);
+      } catch (err) {
+        setError(err);
+        console.error("Ошибка при загрузке рецепта:", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRecipe();
   }, [id]);
 
-  if (!recipe) return <p>Загрузка...</p>; // Показываем сообщение, пока данные загружаются
+  if (loading) return <p>Загрузка...</p>; // Показываем сообщение, пока данные загружаются
+  if (error) return <p>Ошибка: {error.message}</p>; // Обработка ошибок
+
+  let ingredientsArray;
+  if (typeof recipe.ingredients === "string") {
+    ingredientsArray = recipe.ingredients
+      .split(",")
+      .map((ingredient) => ingredient.trim());
+  } else if (Array.isArray(recipe.ingredients)) {
+    ingredientsArray = recipe.ingredients;
+  } else {
+    return <p>Ошибка: ингредиенты не найдены.</p>;
+  }
 
   return (
     <div className="recipe-detail">
       <h2>{recipe.title}</h2>
       <h3>Ингредиенты:</h3>
       <ul>
-        {recipe.ingredients.map((ingredient, index) => (
+        {ingredientsArray.map((ingredient, index) => (
           <li key={index}>{ingredient}</li>
         ))}
       </ul>

@@ -41,10 +41,12 @@ INSTALLED_APPS = [
     'rest_framework_swagger',
     'drf_yasg',
     'recipes',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -131,3 +133,10 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 }
+
+CORS_ALLOW_ALL_ORIGINS = True  # Для разработки
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",  # адрес вашего клиентского приложения
+]
+
+

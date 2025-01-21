@@ -23,6 +23,11 @@ schema_view = get_schema_view(
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('recipes.urls')),  # Подключение маршрутов приложения recipes
+    path('api/openapi', include('recipes.urls')), 
+    path('api/swagger-ui/', include('recipes.urls')), 
+    path('api/recipe/', include('recipes.urls')),
+    path('api/recipe/<id>/', include ('recipes.urls')),
+    path('api/category/', include('recipes.urls')), 
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),  # Документация Swagger
     path('swagger.json/', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     path('swagger.yaml/', schema_view.without_ui(cache_timeout=0), name='schema-yaml'),

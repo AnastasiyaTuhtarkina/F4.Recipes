@@ -1,33 +1,45 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import data from "./data";
+import axios from "axios";
 import "./RecipeList.css";
 
 const RecipeList = () => {
   const { categoryId } = useParams();
-  const category = data.categories.find(
-    (category) => category.id === categoryId
-  );
-  const categoryName = category ? category.name : "Неизвестная категория"; // Фолбек на случай если категория не найдена
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const recipes = data.recipes.filter(
-    (recipe) => recipe.categoryId === categoryId
-  );
+  useEffect(() => {
+    const fetchRecipes = async () => {
+      try {
+        const response = await axios.get(
+          `http://localhost:8000/api/recipes/?category=${categoryId}`
+        );
+        setRecipes(response.data);
+      } catch (err) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  console.log("CategoryId:", categoryId);
-  console.log("Recipes:", recipes);
+    fetchRecipes();
+  }, [categoryId]);
+
+  if (loading) return <div>Загрузка...</div>;
+  if (error) return <div>Ошибка: {error.message}</div>;
+
+  const categoryName = categoryId
+    ? `Категория ${categoryId}`
+    : "Неизвестная категория"; // Замените на логику получения имени категории, если нужно
 
   return (
     <div className="recipe-list">
-      {" "}
-      {/* Добавляем класс для стилей */}
       <h2>Рецепты для категории: {categoryName}</h2>
-      {/* Отображение рецептов */}
       <ul>
         {recipes.map((recipe) => (
           <li key={recipe.id}>
-            <Link to={`/recipe/${recipe.id}`}>{recipe.title}</Link>{" "}
-            {/* Ссылка на страницу рецепта */}
+            <Link to={`/recipe/${recipe.id}`}>{recipe.title}</Link>
           </li>
         ))}
       </ul>
